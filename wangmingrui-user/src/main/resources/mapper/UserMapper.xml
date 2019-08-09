@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wmr.dao.UserMapper">
+    <select id="findAllByUserNameBetweenAndCreateTime" resultType="com.wmr.entity.UserInfo">
+        SELECT bu.*,br.roleName roleName,br.id bid FROM base_user bu INNER JOIN base_user_role bur ON bu.id=bur.userId
+                                                  LEFT JOIN base_role br ON br.id=bur.roleId where 1=1
+        <if test="userName != null and userName != ''">
+            and bu.userName like CONCAT('%',#{userName},'%')
+        </if>
+        <if test="sex!=null and sex!=''">
+            and bu.sex=#{sex}
+        </if>
+        <if test="min!=null and min!=''">
+            and bu.createTime >= #{min}
+        </if>
+        <if test="max!=null and max!=''">
+            and bu.createTime <![CDATA[<=]]> #{max}
+        </if>
+        GROUP BY bu.id
+    </select>
+    <!--删除用户-->
+    <delete id="deleteUserMiddle">
+        DELETE FROM base_user_role  where userId=#{userId}
+    </delete>
+    <delete id="deleteUserInfo">
+        delete from base_user where id=#{id}
+    </delete>
+    <!--添加用户-->
+    <insert id="addUserInfo">
+        insert into base_user(id,userName,loginName,password,tel,sex,imager)values (null,#{userName},#{loginName},#{password},#{tel},#{sex},#{imager})
+    </insert>
+    <!--添加中间值-->
+    <insert id="addModdle" parameterType="Long">
+        insert into base_user_role(userId)values(#{userId})
+    </insert>
+    <select id="selectUserInfoByName" resultType="com.wmr.entity.UserInfo">
+        select *  from base_user where userName=#{userName}
+    </select>
+    <update id="updateUserInfo">
+      update base_user set userName=#{userName},loginName=#{loginName},password=#{password},tel=#{tel},sex=#{sex},imager=#{imager} where id=#{id}
+    </update>
+    <update id="updateModdle">
+        update base_user_role set roleId=#{roleId} where userId=#{userId}
+    </update>
+    <select id="selectRole" resultType="com.wmr.entity.RoleInfo">
+        select * from base_role br
+    </select>
+</mapper>
